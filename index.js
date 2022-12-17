@@ -16,18 +16,19 @@ function pullRequests(repoOwner, repo) {
     });
     return resp;
 }
-function filterLabel(labels, target) {
-    let labelname = labels.map((label) => {
-        return label.name;
-    });
-    let filterdLabels = labelname.filter(label => target.indexOf(label) != -1);
-    if (filterdLabels.length == target.length) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
+// function filterLabel(labels ,target: string[]):boolean{
+//     let labelname = labels.map((label) => {
+//         return label.name
+//     })
+//     let filterdLabels = labelname.filter(
+//         label => target.indexOf(label) != -1
+//     )
+//     if ( filterdLabels.length == target.length) {
+//         return true
+//     } else {
+//         return false
+//     }
+// }
 function setOutput(pull) {
     let output = '';
     for (const p of pull) {
@@ -39,6 +40,6 @@ function setOutput(pull) {
 const now = Date.now();
 const prom = pullRequests(repoOwner, repo);
 prom.then((pulls) => {
-    let claim = pulls.data.filter(p => filterLabel(p.labels, labels));
+    let claim = pulls.data;
     setOutput(claim);
 });

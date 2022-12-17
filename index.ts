@@ -19,19 +19,19 @@ function pullRequests(repoOwner:string, repo:string ) {
     return resp
 }
 
-function filterLabel(labels ,target: string[]):boolean{
-    let labelname = labels.map((label) => {
-        return label.name
-    })
-    let filterdLabels = labelname.filter(
-        label => target.indexOf(label) != -1
-    )
-    if ( filterdLabels.length == target.length) {
-        return true
-    } else {
-        return false
-    }
-}
+// function filterLabel(labels ,target: string[]):boolean{
+//     let labelname = labels.map((label) => {
+//         return label.name
+//     })
+//     let filterdLabels = labelname.filter(
+//         label => target.indexOf(label) != -1
+//     )
+//     if ( filterdLabels.length == target.length) {
+//         return true
+//     } else {
+//         return false
+//     }
+// }
 
 function setOutput(pull){
     let output = ''
@@ -45,8 +45,6 @@ function setOutput(pull){
 const now = Date.now()
 const prom = pullRequests(repoOwner,repo)
 prom.then((pulls: any) => {
-    let claim = pulls.data.filter(
-        p => filterLabel(p.labels, labels)
-    )
+    let claim = pulls.data
     setOutput(claim)
 })
