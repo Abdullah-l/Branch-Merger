@@ -3,7 +3,6 @@ import * as github from '@actions/github'
 
 const token: string = core.getInput('token')
 const labels: string[] = JSON.parse(core.getInput('labels'))
-const skipSec: Number = parseInt(core.getInput('skip_hour')) * 60 * 60
 const repoOwner: string = github.context.repo.owner
 const repo: string = github.context.repo.repo
 
@@ -34,21 +33,12 @@ function filterLabel(labels ,target: string[]):boolean{
     }
 }
 
-function filterTime(pull ,target: number):boolean{
-    const createdAt = Date.parse(pull.created_at)
-    const gapSec = Math.round((target - createdAt) / 1000)
-    if ( gapSec > skipSec ) {
-        return true
-    }
-    return false
-}
-
 function setOutput(pull){
     let output = ''
     for (const p of pull) {
         output = output + p.title + "\\n" + p.html_url + "\\n---\\n"
     }
-    output = output.slice(0,-7) //最後の"\\n---\\n"を削除
+    output = output.slice(0,-7)
     core.setOutput('pulls', output)
 }
 
@@ -56,7 +46,7 @@ const now = Date.now()
 const prom = pullRequests(repoOwner,repo)
 prom.then((pulls: any) => {
     let claim = pulls.data.filter(
-        p => filterLabel(p.labels, labels) && filterTime(p ,now)
+        p => filterLabel(p.labels, labels)
     )
     setOutput(claim)
 })

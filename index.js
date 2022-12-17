@@ -4,7 +4,6 @@ const core = require("@actions/core");
 const github = require("@actions/github");
 const token = core.getInput('token');
 const labels = JSON.parse(core.getInput('labels'));
-const skipSec = parseInt(core.getInput('skip_hour')) * 60 * 60;
 const repoOwner = github.context.repo.owner;
 const repo = github.context.repo.repo;
 function pullRequests(repoOwner, repo) {
@@ -29,25 +28,17 @@ function filterLabel(labels, target) {
         return false;
     }
 }
-function filterTime(pull, target) {
-    const createdAt = Date.parse(pull.created_at);
-    const gapSec = Math.round((target - createdAt) / 1000);
-    if (gapSec > skipSec) {
-        return true;
-    }
-    return false;
-}
 function setOutput(pull) {
     let output = '';
     for (const p of pull) {
         output = output + p.title + "\\n" + p.html_url + "\\n---\\n";
     }
-    output = output.slice(0, -7); //最後の"\\n---\\n"を削除
+    output = output.slice(0, -7);
     core.setOutput('pulls', output);
 }
 const now = Date.now();
 const prom = pullRequests(repoOwner, repo);
 prom.then((pulls) => {
-    let claim = pulls.data.filter(p => filterLabel(p.labels, labels) && filterTime(p, now));
+    let claim = pulls.data.filter(p => filterLabel(p.labels, labels));
     setOutput(claim);
 });
