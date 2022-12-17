@@ -41,7 +41,7 @@ function setOutput(pull){
         output = output + p.title + "\\n" + p.html_url + "\\n---\\n"
     }
     output = output.slice(0,-7)
-    core.setOutput('pulls', output)
+    core.setOutput('daddy', output)
 }
 
 const now = Date.now()
