@@ -16,7 +16,8 @@ function pullRequests(repoOwner:string, repo:string ) {
             core.setFailed(e.message)
         }
     )
-    core.debug(`pullRequests: ${resp}`)
+    core.info(`pullRequests: ${resp}`)
+    console.log(`pullRequests: ${resp}`)
     return resp
 }
 

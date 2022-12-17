@@ -14,7 +14,8 @@ function pullRequests(repoOwner, repo) {
     }).catch(e => {
         core.setFailed(e.message);
     });
-    core.debug(`pullRequests: ${resp}`);
+    core.info(`pullRequests: ${resp}`);
+    console.log(`pullRequests: ${resp}`);
     return resp;
 }
 // function filterLabel(labels ,target: string[]):boolean{
