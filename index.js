@@ -59,7 +59,7 @@ function filterLabel(labels, target) {
         return l.name.toLowerCase() === target.toLowerCase();
     }
 }
-async function setOutput(pull) {
+function setOutput(pull) {
     console.log("here we go");
     console.log("pullLength: " + pull.length);
     console.log("pull: " + pull);
@@ -72,7 +72,7 @@ async function setOutput(pull) {
         console.log(branchName);
         console.log('\n');
         try {
-            const merge = await git.merge("origin/" + branchName, ["--squash"]).catch((err) => {
+            const merge = git.merge("origin/" + branchName, ["--squash"]).catch((err) => {
                 if (err.git) {
                     console.log(err.git);
                     return err.git;
@@ -83,32 +83,33 @@ async function setOutput(pull) {
             if (merge.failed) {
                 console.log(`Merge resulted in ${merge.conflicts.length} conflicts`);
             }
-            await git.commit("Merge branch '" + branchName + "' into stag");
+            git.commit("Merge branch '" + branchName + "' into stag");
         }
         catch (error) {
             console.log(error);
         }
     }
 }
-async function resetBranch() {
+function resetBranch() {
     console.log("resetting branch");
-    await git.addConfig("user.name", "github-actions");
-    await git.addConfig("user.email", "gggg@gggg.com");
-    await git.fetch();
-    console.log(await git.status());
-    await git.checkout("stag");
-    await git.reset("hard", ["origin/master"]);
+    git.addConfig("user.name", "github-actions");
+    git.addConfig("user.email", "gggg@gggg.com");
+    git.fetch();
+    console.log(git.status());
+    git.checkout("stag");
+    git.reset("hard", ["origin/master"]);
 }
-async function push() {
+function push() {
     console.log("pushing");
-    await git.push("origin", "stag", ["--force"]);
+    git.push("origin", "stag", ["--force"]);
 }
-const prom = pullRequests(repoOwner, repo);
 resetBranch();
-prom.then((pulls) => {
-    console.log("data: " + pulls.data);
-    let claim = pulls.data.filter(p => filterLabel(p.labels, label));
-    setOutput(claim);
-}).finally(() => {
-    push();
+(async () => {
+    const prom = pullRequests(repoOwner, repo);
+    prom.then((pulls) => {
+        console.log("data: " + pulls.data);
+        let claim = pulls.data.filter(p => filterLabel(p.labels, label));
+        setOutput(claim);
+    });
 });
+push();
