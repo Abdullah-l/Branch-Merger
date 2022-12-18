@@ -73,10 +73,13 @@ async function setOutput(pull) {
     try {
         console.log("testdfjkgdrfjk");
         await git.addConfig("user.name", "github-actions");
-        await git.listConfig();
+        const configg = await git.listConfig();
+        console.log(configg);
+        const remotes = await git.getRemotes(true);
+        console.log(remotes);
         const branch = await git.checkoutLocalBranch("test-branch");
         console.log(await git.status());
-        await git.push("origin", "test-branch");
+        await git.push("origin", "test-branch", ["-u"]);
     }
     catch (error) {
         console.log(error);
