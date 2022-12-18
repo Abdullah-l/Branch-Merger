@@ -35,6 +35,7 @@ console.log(baseDir);
 const git = simpleGit({ baseDir });
 const token = core.getInput('token');
 const label = core.getInput('label');
+console.log("beginning label: " + label);
 const repoOwner = github.context.repo.owner;
 const repo = github.context.repo.repo;
 function pullRequests(repoOwner, repo) {
@@ -51,6 +52,8 @@ function pullRequests(repoOwner, repo) {
     return resp;
 }
 function filterLabel(labels, target) {
+    console.log("labels: " + labels);
+    console.log("target: " + target);
     let labelname = labels.map((label) => {
         return label.name;
     });
@@ -68,6 +71,7 @@ async function setOutput(pull) {
     await git.addConfig("user.name", "github-actions");
     await git.addConfig("user.email", "gggg@gggg.com");
     for (const p of pull) {
+        console.log("pull: " + p);
         if (p == null) {
             return null;
         }
@@ -105,6 +109,7 @@ async function setOutput(pull) {
 // }
 const prom = pullRequests(repoOwner, repo);
 prom.then((pulls) => {
+    console.log("data: " + pulls.data);
     let claim = pulls.data.filter(p => filterLabel(p.labels, label));
     setOutput(claim);
 });
