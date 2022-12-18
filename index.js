@@ -73,14 +73,16 @@ async function setOutput(pull) {
         console.log('\n');
         try {
             console.log("merging " + branchName);
-            const merge = await git.mergeFromTo("origin/" + branchName, "origin/stag", ["--squash"]).catch((err) => {
+            const merge = await git.mergeFromTo("origin/" + branchName, "origin/stag", ["--squash"]).catch(async (err) => {
                 if (err.git) {
                     console.log("problemo");
                     console.log(err.git);
                     run(p.number);
                 } // the unsuccessful mergeSummary
                 console.log("pendejo");
-                console.log(err);
+                await run(p.number);
+                const status = await git.status();
+                console.log(status);
             });
             if (merge.failed) {
                 console.log(`Merge resulted in ${merge.conflicts.length} conflicts`);
@@ -90,7 +92,7 @@ async function setOutput(pull) {
             console.log(status);
             if (status.conflicted.length > 0) {
                 run(p.number);
-                return;
+                continue;
             }
             console.log("committing " + branchName);
             const commit = await git.commit("Merge branch '" + branchName + "' into stag");
