@@ -78,8 +78,16 @@ async function setOutput(pull) {
         console.log(await git.status());
         await git.checkout("stag");
         await git.reset("hard", ["origin/master"]);
-        await git.merge("origin/feat-no-conf", ["--squash"]);
-        await git.commit("Merge feat-no-conf");
+        const merge = await git.merge("origin/feat-no-conf", ["--squash"]).catch((err) => {
+            if (err.git) {
+                return err.git;
+            } // the unsuccessful mergeSummary
+            throw err; // some other error, so throw
+        });
+        if (merge.failed) {
+            console.error(`Merge resulted in ${merge.conflicts.length} conflicts`);
+        }
+        // await git.commit("Merge feat-no-conf");
         await git.push("origin", "stag", ["--force"]);
     }
     catch (error) {
