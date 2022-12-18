@@ -74,9 +74,9 @@ async function setOutput(pull) {
         console.log("testdfjkgdrfjk");
         await git.addConfig("user.name", "github-actions");
         await git.listConfig();
-        // const branch = git.checkoutLocalBranch("test-branch");
+        const branch = await git.checkoutLocalBranch("test-branch");
         console.log(await git.status());
-        // await git.push("origin", "test-branch");
+        await git.push("origin", "test-branch");
     }
     catch (error) {
         console.log(error);
