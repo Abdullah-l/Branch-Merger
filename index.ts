@@ -1,55 +1,43 @@
-import * as core from '@actions/core'
-import * as github from '@actions/github'
+import { getInput } from "@actions/core";
+import { context, getOctokit } from "@actions/github";
+import dedent from 'dedent'
 
-const token: string = core.getInput('token')
-const labels: string[] = JSON.parse(core.getInput('labels'))
-const repoOwner: string = github.context.repo.owner
-const repo: string = github.context.repo.repo
+type GithubContext = typeof context;
 
-function pullRequests(repoOwner:string, repo:string ) {
-    let client = github.getOctokit(core.getInput('token'))
-    let resp = client.rest.pulls.list({
-        owner: repoOwner,
-        repo: repo,
-    }).catch(
-        e => {
-            core.setFailed(e.message)
-        }
-    )
-    core.info(`pullRequests: ${resp}`)
-    console.log(`pullRequests: ${resp}`)
-    return resp
-}
+const inputName = getInput("name");
+const ghToken = getInput("ghToken");
 
-// function filterLabel(labels ,target: string[]):boolean{
-//     let labelname = labels.map((label) => {
-//         return label.name
-//     })
-//     let filterdLabels = labelname.filter(
-//         label => target.indexOf(label) != -1
-//     )
-//     if ( filterdLabels.length == target.length) {
-//         return true
-//     } else {
-//         return false
-//     }
-// }
+greet(inputName, getRepoUrl(context));
 
-function setOutput(pull){
-    let output = ''
-    for (const p of pull) {
-        output = output + p.title + "\\n" + p.html_url + "\\n---\\n"
-    }
-    output = output.slice(0,-7)
-    core.setOutput('daddy', output)
-}
-
-console.log("hiiii daddy")
-console.log("\n")
-core.info(`pullRequests juhiu`)
-const now = Date.now()
-const prom = pullRequests(repoOwner,repo)
-prom.then((pulls: any) => {
-    let claim = pulls.data
-    setOutput(claim)
+getDiff().then(files => {
+    console.log(dedent(`
+    Your PR diff:
+    ${JSON.stringify(files, undefined, 2)}
+    `))
 })
+
+function greet(name: string, repoUrl: string) {
+  console.log(`'Hello ${name}! You are running a GH Action in ${repoUrl}'`);
+}
+
+function getRepoUrl({ repo, serverUrl }: GithubContext): string {
+  return `${serverUrl}/${repo.owner}/${repo.repo}`;
+}
+
+async function getDiff() {
+  if (ghToken && context.payload.pull_request) {
+      const octokit = getOctokit(ghToken)
+
+      const result = await octokit.rest.repos.compareCommits({
+          repo: context.repo.repo,
+          owner: context.repo.owner,
+          head: context.payload.pull_request.head.sha,
+          base: context.payload.pull_request.base.sha,
+          per_page: 100
+      })
+
+      return result.data.files || []
+  }
+
+  return []
+}
