@@ -38,8 +38,8 @@ const label = core.getInput('label');
 console.log("beginning label: " + label);
 const repoOwner = github.context.repo.owner;
 const repo = github.context.repo.repo;
+const client = github.getOctokit(token);
 async function pullRequests(repoOwner, repo) {
-    let client = github.getOctokit(token);
     let resp = client.rest.pulls.list({
         owner: repoOwner,
         repo: repo,
@@ -84,6 +84,11 @@ async function setOutput(pull) {
             if (merge.failed) {
                 console.log(`Merge resulted in ${merge.conflicts.length} conflicts`);
             }
+            const status = await git.status();
+            if (status.conflicted.length > 0) {
+                run(p.number);
+                return;
+            }
             console.log("committing " + branchName);
             await git.commit("Merge branch '" + branchName + "' into stag");
         }
@@ -91,6 +96,14 @@ async function setOutput(pull) {
             console.log(error);
         }
     }
+}
+async function run(pr_number) {
+    await client.rest.issues.createComment({
+        owner: repoOwner,
+        repo: repo,
+        issue_number: pr_number,
+        body: 'you got problems man'
+    });
 }
 async function resetBranch() {
     console.log("resetting branch");
