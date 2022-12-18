@@ -4,7 +4,7 @@ Put outputs pull requests list.
 ## Inputs
 ### token
 github token.
-
+mn
 ### labels
 List pull requests that match the specified label.  
 json array string (ex. `["WFR","ASAP"]`)
