@@ -59,7 +59,7 @@ function filterLabel(labels, target) {
         return l.name.toLowerCase() === target.toLowerCase();
     }
 }
-function setOutput(pull) {
+async function setOutput(pull) {
     console.log("here we go");
     console.log("pullLength: " + pull.length);
     console.log("pull: " + pull);
@@ -72,7 +72,7 @@ function setOutput(pull) {
         console.log(branchName);
         console.log('\n');
         try {
-            const merge = git.merge("origin/" + branchName, ["--squash"]).catch((err) => {
+            const merge = await git.merge("origin/" + branchName, ["--squash"]).catch((err) => {
                 if (err.git) {
                     console.log(err.git);
                     return err.git;
@@ -83,33 +83,33 @@ function setOutput(pull) {
             if (merge.failed) {
                 console.log(`Merge resulted in ${merge.conflicts.length} conflicts`);
             }
-            git.commit("Merge branch '" + branchName + "' into stag");
+            await git.commit("Merge branch '" + branchName + "' into stag");
         }
         catch (error) {
             console.log(error);
         }
     }
 }
-function resetBranch() {
+async function resetBranch() {
     console.log("resetting branch");
-    git.addConfig("user.name", "github-actions");
-    git.addConfig("user.email", "gggg@gggg.com");
-    git.fetch();
-    console.log(git.status());
-    git.checkout("stag");
-    git.reset("hard", ["origin/master"]);
+    await git.addConfig("user.name", "github-actions");
+    await git.addConfig("user.email", "gggg@gggg.com");
+    await git.fetch();
+    console.log(await git.status());
+    await git.checkout("stag");
+    await git.reset("hard", ["origin/master"]);
 }
-function push() {
+async function push() {
     console.log("pushing");
-    git.push("origin", "stag", ["--force"]);
+    await git.push("origin", "stag", ["--force"]);
 }
-resetBranch();
 (async () => {
+    await resetBranch();
     const prom = pullRequests(repoOwner, repo);
-    prom.then((pulls) => {
+    await prom.then((pulls) => {
         console.log("data: " + pulls.data);
         let claim = pulls.data.filter(p => filterLabel(p.labels, label));
         setOutput(claim);
     });
+    await push();
 });
-push();
