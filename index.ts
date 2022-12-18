@@ -50,6 +50,8 @@ function filterLabel(labels ,target: string):boolean{
 async function setOutput(pull){
     let output = ''
     console.log("here we go")
+    console.log("pullLength: " + pull.length)
+    console.log("pull: " + pull)
     await git.addConfig("user.name", "github-actions");
     await git.addConfig("user.email", "gggg@gggg.com");
     for (const p of pull) {
