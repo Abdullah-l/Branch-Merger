@@ -78,7 +78,7 @@ async function setOutput(pull) {
         console.log(await git.status());
         await git.checkout("stag");
         await git.reset("hard", ["origin/master"]);
-        await git.mergeFromTo("origin/feat-no-conf", ["--squash"]);
+        await git.merge("origin/feat-no-conf", ["--squash"]);
         await git.commit("Merge feat-no-conf");
         await git.push("origin", "stag", ["--force"]);
     }
