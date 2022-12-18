@@ -15,7 +15,7 @@ const repo: string = github.context.repo.repo
 
 
 function pullRequests(repoOwner:string, repo:string ) {
-    let client = github.getOctokit(core.getInput('token'))
+    let client = github.getOctokit(token)
     let resp = client.rest.pulls.list({
         owner: repoOwner,
         repo: repo,
@@ -53,14 +53,12 @@ async function setOutput(pull){
     }
     try {
         console.log("testdfjkgdrfjk")
-        await git.addConfig("user.name", "github-actions");
-        const configg = await git.listConfig();
-        console.log(configg)
-        const remotes = await git.getRemotes(true);
-        console.log(remotes)
-        const branch = await git.checkoutLocalBranch("test-branch");
+
+        await git.checkout("stag");
+        await git.reset("hard", ["origin/master"]);
+        await git.mergeFromTo("origin/feat", "stag");
         console.log(await git.status())
-        await git.push("origin", "test-branch", ["-u"]);
+        await git.push("origin");
     } catch (error) {
         console.log(error);
     }
@@ -68,6 +66,9 @@ async function setOutput(pull){
     core.setOutput('pulls', output)
     core.setOutput('daddy', output)
 }
+
+// async function resetBranch() {
+// }
 
 const now = Date.now()
 const prom = pullRequests(repoOwner,repo)
