@@ -85,6 +85,7 @@ async function setOutput(pull) {
                 console.log(`Merge resulted in ${merge.conflicts.length} conflicts`);
             }
             const status = await git.status();
+            console.log(status);
             if (status.conflicted.length > 0) {
                 run(p.number);
                 return;
