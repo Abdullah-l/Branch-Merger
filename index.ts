@@ -54,7 +54,7 @@ async function setOutput(pull){
     try {
         console.log("testdfjkgdrfjk")
 
-        await git.checkout("stag");
+        await git.checkout("origin/stag");
         await git.reset("hard", ["origin/master"]);
         await git.mergeFromTo("origin/feat-no-conf", "origin/stag");
         console.log(await git.status())
