@@ -53,7 +53,8 @@ async function setOutput(pull){
     }
     try {
         console.log("testdfjkgdrfjk")
-
+        await git.addConfig("user.name", "github-actions");
+        await git.addConfig("user.email", "gggg@gggg.com");
         await git.fetch();
         console.log(await git.status())
         await git.checkout("origin/stag");
