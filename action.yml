@@ -8,14 +8,10 @@ inputs:
     description: 'github token'
     required: true
     default: ''
-  labels:
-    description: 'require labels to list (JSON array string)'
-    required: false
-    default: '[ "WFR" ]'
-  skip_hour:
-    description: 'Pull requests within this hour will not be listed'
+  label:
+    description: 'Label to filter pull requests'
     required: true
-    default: '24'
+    default: ''
 outputs:
   result:
     description: 'pull request string'

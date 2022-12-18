@@ -34,7 +34,7 @@ const baseDir = path_1.default.join(process.cwd(), '');
 console.log(baseDir);
 const git = simpleGit({ baseDir });
 const token = core.getInput('token');
-const labels = JSON.parse(core.getInput('labels'));
+const label = core.getInput('label');
 const repoOwner = github.context.repo.owner;
 const repo = github.context.repo.repo;
 function pullRequests(repoOwner, repo) {
@@ -50,60 +50,61 @@ function pullRequests(repoOwner, repo) {
     console.log(`pullRequests: ${resp}`);
     return resp;
 }
-// function filterLabel(labels ,target: string[]):boolean{
-//     let labelname = labels.map((label) => {
-//         return label.name
-//     })
-//     let filterdLabels = labelname.filter(
-//         label => target.indexOf(label) != -1
-//     )
-//     if ( filterdLabels.length == target.length) {
-//         return true
-//     } else {
-//         return false
-//     }
-// }
+function filterLabel(labels, target) {
+    let labelname = labels.map((label) => {
+        return label.name;
+    });
+    let filterdLabels = labelname.filter(label => target.indexOf(label) != -1);
+    if (filterdLabels.length == target.length) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
 async function setOutput(pull) {
     let output = '';
+    console.log("here we go");
+    await git.addConfig("user.name", "github-actions");
+    await git.addConfig("user.email", "gggg@gggg.com");
     for (const p of pull) {
-        console.log(p.head.ref);
-        console.log('\n');
-        output = output + p.title + "\\n" + p.html_url + "\\n---\\n";
-    }
-    try {
-        console.log("testdfjkgdrfjk");
-        await git.addConfig("user.name", "github-actions");
-        await git.addConfig("user.email", "gggg@gggg.com");
-        await git.fetch();
-        console.log(await git.status());
-        await git.checkout("stag");
-        await git.reset("hard", ["origin/master"]);
-        const merge = await git.merge("origin/feat-no-conf", ["--squash"]).catch((err) => {
-            if (err.git) {
-                console.log(err.git);
-                return err.git;
-            } // the unsuccessful mergeSummary
-            console.log(err);
-            throw err; // some other error, so throw
-        });
-        if (merge.failed) {
-            console.log(`Merge resulted in ${merge.conflicts.length} conflicts`);
+        if (p == null) {
+            return null;
         }
-        await git.commit("Merge feat-no-conf");
-        await git.push("origin", "stag", ["--force"]);
+        const branchName = p.head.ref;
+        console.log(branchName);
+        console.log('\n');
+        try {
+            await git.fetch();
+            console.log(await git.status());
+            await git.checkout("stag");
+            await git.reset("hard", ["origin/master"]);
+            const merge = await git.merge("origin/" + branchName, ["--squash"]).catch((err) => {
+                if (err.git) {
+                    console.log(err.git);
+                    return err.git;
+                } // the unsuccessful mergeSummary
+                console.log(err);
+                throw err; // some other error, so throw
+            });
+            if (merge.failed) {
+                console.log(`Merge resulted in ${merge.conflicts.length} conflicts`);
+            }
+            await git.commit("Merge branch '" + branchName + "' into stag");
+            await git.push("origin", "stag", ["--force"]);
+        }
+        catch (error) {
+            console.log(error);
+        }
+        console.log(output);
+        core.setOutput('pulls', output);
+        core.setOutput('daddy', output);
     }
-    catch (error) {
-        console.log(error);
-    }
-    console.log(output);
-    core.setOutput('pulls', output);
-    core.setOutput('daddy', output);
 }
 // async function resetBranch() {
 // }
-const now = Date.now();
 const prom = pullRequests(repoOwner, repo);
 prom.then((pulls) => {
-    let claim = pulls.data;
+    let claim = pulls.data.filter(p => filterLabel(p.labels, label));
     setOutput(claim);
 });

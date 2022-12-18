@@ -9,7 +9,7 @@ const git = simpleGit({ baseDir })
 
 
 const token: string = core.getInput('token')
-const labels: string[] = JSON.parse(core.getInput('labels'))
+const label: string = core.getInput('label')
 const repoOwner: string = github.context.repo.owner
 const repo: string = github.context.repo.repo
 
@@ -30,36 +30,38 @@ function pullRequests(repoOwner:string, repo:string ) {
     return resp
 }
 
-// function filterLabel(labels ,target: string[]):boolean{
-//     let labelname = labels.map((label) => {
-//         return label.name
-//     })
-//     let filterdLabels = labelname.filter(
-//         label => target.indexOf(label) != -1
-//     )
-//     if ( filterdLabels.length == target.length) {
-//         return true
-//     } else {
-//         return false
-//     }
-// }
+function filterLabel(labels ,target: string):boolean{
+    let labelname = labels.map((label) => {
+        return label.name
+    })
+    let filterdLabels = labelname.filter(
+        label => target.indexOf(label) != -1
+    )
+    if ( filterdLabels.length == target.length) {
+        return true
+    } else {
+        return false
+    }
+}
 
 async function setOutput(pull){
     let output = ''
+    console.log("here we go")
+    await git.addConfig("user.name", "github-actions");
+    await git.addConfig("user.email", "gggg@gggg.com");
     for (const p of pull) {
-        console.log(p.head.ref)
+        if (p == null) {
+            return null
+        }
+        const branchName = p.head.ref
+        console.log(branchName)
         console.log('\n')
-        output = output + p.title + "\\n" + p.html_url + "\\n---\\n"
-    }
     try {
-        console.log("testdfjkgdrfjk")
-        await git.addConfig("user.name", "github-actions");
-        await git.addConfig("user.email", "gggg@gggg.com");
         await git.fetch();
         console.log(await git.status())
         await git.checkout("stag");
         await git.reset("hard", ["origin/master"]);
-        const merge = await git.merge("origin/feat-no-conf", ["--squash"]).catch((err) => {
+        const merge = await git.merge("origin/" + branchName, ["--squash"]).catch((err) => {
             if (err.git) {
                 console.log(err.git);
                return err.git;
@@ -72,7 +74,7 @@ async function setOutput(pull){
             console.log(`Merge resulted in ${merge.conflicts.length} conflicts`);
          }
 
-        await git.commit("Merge feat-no-conf");
+        await git.commit("Merge branch '" + branchName + "' into stag");
         
         await git.push("origin", "stag", ["--force"]);
     } catch (error) {
@@ -82,13 +84,14 @@ async function setOutput(pull){
     core.setOutput('pulls', output)
     core.setOutput('daddy', output)
 }
-
+}
 // async function resetBranch() {
 // }
 
-const now = Date.now()
 const prom = pullRequests(repoOwner,repo)
 prom.then((pulls: any) => {
-    let claim = pulls.data
+    let claim = pulls.data.filter(
+        p => filterLabel(p.labels, label)
+    )
     setOutput(claim)
 })
