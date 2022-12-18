@@ -52,17 +52,11 @@ function pullRequests(repoOwner, repo) {
     return resp;
 }
 function filterLabel(labels, target) {
-    console.log("labels: " + labels);
+    console.log("labels length: " + labels.length);
     console.log("target: " + target);
-    let labelname = labels.map((label) => {
-        return label.name;
-    });
-    let filterdLabels = labelname.filter(label => target.indexOf(label) != -1);
-    if (filterdLabels.length == target.length) {
-        return true;
-    }
-    else {
-        return false;
+    for (const l of labels) {
+        console.log("label: " + l.name);
+        return l.name.toLowerCase() === target.toLowerCase();
     }
 }
 async function setOutput(pull) {
