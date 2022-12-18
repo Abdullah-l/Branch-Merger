@@ -73,7 +73,7 @@ async function setOutput(pull) {
         console.log('\n');
         try {
             console.log("merging " + branchName);
-            const merge = await git.merge("origin/" + branchName).catch((err) => {
+            const merge = await git.merge("origin/" + branchName, ["--commit"]).catch((err) => {
                 if (err.git) {
                     console.log(err.git);
                     return err.git;
