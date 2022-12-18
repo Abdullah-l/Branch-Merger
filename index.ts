@@ -15,7 +15,7 @@ const repoOwner: string = github.context.repo.owner
 const repo: string = github.context.repo.repo
 
 
-function pullRequests(repoOwner:string, repo:string ) {
+async function pullRequests(repoOwner:string, repo:string ) {
     let client = github.getOctokit(token)
     let resp = client.rest.pulls.list({
         owner: repoOwner,

@@ -38,7 +38,7 @@ const label = core.getInput('label');
 console.log("beginning label: " + label);
 const repoOwner = github.context.repo.owner;
 const repo = github.context.repo.repo;
-function pullRequests(repoOwner, repo) {
+async function pullRequests(repoOwner, repo) {
     let client = github.getOctokit(token);
     let resp = client.rest.pulls.list({
         owner: repoOwner,
