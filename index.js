@@ -112,4 +112,4 @@ async function push() {
         setOutput(claim);
     });
     await push();
-});
+})();
