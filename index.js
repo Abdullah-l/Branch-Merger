@@ -106,10 +106,10 @@ async function push() {
 (async () => {
     await resetBranch();
     const prom = pullRequests(repoOwner, repo);
-    await prom.then((pulls) => {
+    await prom.then(async (pulls) => {
         console.log("data: " + pulls.data);
         let claim = pulls.data.filter(p => filterLabel(p.labels, label));
-        setOutput(claim);
+        await setOutput(claim);
     });
     await push();
 })();
