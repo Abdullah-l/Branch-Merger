@@ -41,7 +41,7 @@ function filterLabel(labels ,target: string):boolean{
 
 }
 
-function setOutput(pull){
+async function setOutput(pull){
     console.log("here we go")
     console.log("pullLength: " + pull.length)
     console.log("pull: " + pull)
@@ -56,7 +56,7 @@ function setOutput(pull){
         console.log('\n')
     try {
 
-        const merge = git.merge("origin/" + branchName, ["--squash"]).catch((err) => {
+        const merge = await git.merge("origin/" + branchName, ["--squash"]).catch((err) => {
             if (err.git) {
                 console.log(err.git);
                return err.git;
@@ -69,7 +69,7 @@ function setOutput(pull){
             console.log(`Merge resulted in ${merge.conflicts.length} conflicts`);
          }
 
-        git.commit("Merge branch '" + branchName + "' into stag");
+        await git.commit("Merge branch '" + branchName + "' into stag");
         
     } catch (error) {
         console.log(error);
@@ -99,5 +99,6 @@ prom.then((pulls: any) => {
         p => filterLabel(p.labels, label)
     )
     setOutput(claim)
+}).finally(() => {
+    push();
 })
-push();
