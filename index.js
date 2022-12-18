@@ -73,7 +73,7 @@ async function setOutput(pull) {
         console.log('\n');
         try {
             console.log("merging " + branchName);
-            const merge = await git.merge("origin/" + branchName, ["--no-ff", "--squash"]).catch((err) => {
+            const merge = await git.mergeFromTo("origin/" + branchName, "origin/stag", ["--squash"]).catch((err) => {
                 if (err.git) {
                     console.log(err.git);
                     return err.git;
@@ -92,7 +92,8 @@ async function setOutput(pull) {
                 return;
             }
             console.log("committing " + branchName);
-            await git.commit("Merge branch '" + branchName + "' into stag");
+            const commit = await git.commit("Merge branch '" + branchName + "' into stag");
+            console.log(commit);
         }
         catch (error) {
             console.log(error);
