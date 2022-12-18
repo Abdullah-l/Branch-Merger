@@ -59,7 +59,7 @@ function filterLabel(labels, target) {
         return l.name.toLowerCase() === target.toLowerCase();
     }
 }
-async function setOutput(pull) {
+function setOutput(pull) {
     console.log("here we go");
     console.log("pullLength: " + pull.length);
     console.log("pull: " + pull);
@@ -72,7 +72,7 @@ async function setOutput(pull) {
         console.log(branchName);
         console.log('\n');
         try {
-            const merge = await git.merge("origin/" + branchName, ["--squash"]).catch((err) => {
+            const merge = git.merge("origin/" + branchName, ["--squash"]).catch((err) => {
                 if (err.git) {
                     console.log(err.git);
                     return err.git;
@@ -83,7 +83,7 @@ async function setOutput(pull) {
             if (merge.failed) {
                 console.log(`Merge resulted in ${merge.conflicts.length} conflicts`);
             }
-            await git.commit("Merge branch '" + branchName + "' into stag");
+            git.commit("Merge branch '" + branchName + "' into stag");
         }
         catch (error) {
             console.log(error);
