@@ -42,16 +42,10 @@ function filterLabel(labels ,target: string):boolean{
 }
 
 async function setOutput(pull){
-    let output = ''
     console.log("here we go")
     console.log("pullLength: " + pull.length)
     console.log("pull: " + pull)
-    await git.addConfig("user.name", "github-actions");
-    await git.addConfig("user.email", "gggg@gggg.com");
-    await git.fetch();
-    console.log(await git.status())
-    await git.checkout("stag");
-    await git.reset("hard", ["origin/master"]);
+
     for (const p of pull) {
         console.log("pull: " + p)
         if (p == null) {
@@ -80,16 +74,25 @@ async function setOutput(pull){
     } catch (error) {
         console.log(error);
     }
+}
+}
+async function resetBranch() {
+    console.log("resetting branch")
+    await git.addConfig("user.name", "github-actions");
+    await git.addConfig("user.email", "gggg@gggg.com");
+    await git.fetch();
+    console.log(await git.status())
+    await git.checkout("stag");
+    await git.reset("hard", ["origin/master"]);
+}
+
+async function push() {
+    console.log("pushing")
     await git.push("origin", "stag", ["--force"]);
-    console.log(output)
-    core.setOutput('pulls', output)
-    core.setOutput('daddy', output)
 }
-}
-// async function resetBranch() {
-// }
 
 const prom = pullRequests(repoOwner,repo)
+resetBranch();
 prom.then((pulls: any) => {
     console.log("data: " + pulls.data)
     let claim = pulls.data.filter(
@@ -97,3 +100,4 @@ prom.then((pulls: any) => {
     )
     setOutput(claim)
 })
+push();
