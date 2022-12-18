@@ -66,6 +66,10 @@ async function setOutput(pull) {
     console.log("pull: " + pull);
     await git.addConfig("user.name", "github-actions");
     await git.addConfig("user.email", "gggg@gggg.com");
+    await git.fetch();
+    console.log(await git.status());
+    await git.checkout("stag");
+    await git.reset("hard", ["origin/master"]);
     for (const p of pull) {
         console.log("pull: " + p);
         if (p == null) {
@@ -75,10 +79,6 @@ async function setOutput(pull) {
         console.log(branchName);
         console.log('\n');
         try {
-            await git.fetch();
-            console.log(await git.status());
-            await git.checkout("stag");
-            await git.reset("hard", ["origin/master"]);
             const merge = await git.merge("origin/" + branchName, ["--squash"]).catch((err) => {
                 if (err.git) {
                     console.log(err.git);
@@ -91,11 +91,11 @@ async function setOutput(pull) {
                 console.log(`Merge resulted in ${merge.conflicts.length} conflicts`);
             }
             await git.commit("Merge branch '" + branchName + "' into stag");
-            await git.push("origin", "stag", ["--force"]);
         }
         catch (error) {
             console.log(error);
         }
+        await git.push("origin", "stag", ["--force"]);
         console.log(output);
         core.setOutput('pulls', output);
         core.setOutput('daddy', output);
