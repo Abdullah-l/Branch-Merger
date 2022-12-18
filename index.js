@@ -37,8 +37,11 @@ function setOutput(pull) {
         output = output + p.title + "\\n" + p.html_url + "\\n---\\n";
     }
     output = output.slice(0, -7);
-    core.setOutput('pulls', output);
+    core.setOutput('daddy', output);
 }
+console.log("hiiii daddy");
+console.log("\n");
+core.info(`pullRequests juhiu`);
 const now = Date.now();
 const prom = pullRequests(repoOwner, repo);
 prom.then((pulls) => {
