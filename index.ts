@@ -57,11 +57,11 @@ async function setOutput(pull){
         await git.addConfig("user.email", "gggg@gggg.com");
         await git.fetch();
         console.log(await git.status())
-        await git.checkout("origin/stag");
+        await git.checkout("stag");
         await git.reset("hard", ["origin/master"]);
-        // await git.mergeFromTo("origin/feat-no-conf", "origin/stag", ["--squash"]);
+        await git.mergeFromTo("origin/feat-no-conf", "origin/stag", ["--squash"]);
         
-        await git.push("origin");
+        await git.push("origin", "stag", ["--force"]);
     } catch (error) {
         console.log(error);
     }
