@@ -73,17 +73,18 @@ async function setOutput(pull) {
         console.log('\n');
         try {
             console.log("merging " + branchName);
-            const merge = await git.mergeFromTo("origin/" + branchName, "origin/stag", ["--squash"]).catch((err) => {
-                if (err.git) {
-                    console.log(err.git);
-                    return err.git;
-                } // the unsuccessful mergeSummary
-                console.log(err);
-                throw err; // some other error, so throw
-            });
-            if (merge.failed) {
-                console.log(`Merge resulted in ${merge.conflicts.length} conflicts`);
-            }
+            const merge = await git.mergeFromTo("origin/" + branchName, "origin/stag", ["--squash"]);
+            // .catch((err) => {
+            //     if (err.git) {
+            //         console.log(err.git);
+            //        return err.git;
+            //     } // the unsuccessful mergeSummary
+            //     console.log(err);
+            //     throw err; // some other error, so throw
+            //  });
+            //  if (merge.failed) {
+            //     console.log(`Merge resulted in ${merge.conflicts.length} conflicts`);
+            //  }
             console.log(merge);
             const status = await git.status();
             console.log(status);
