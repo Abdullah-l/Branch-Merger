@@ -124,11 +124,13 @@ async function push() {
     await git.push("origin", "stag", ["--force"]);
 }
 async function main() {
-    // await resetBranch();
+    await resetBranch();
     const pulls = await pullRequests(repoOwner, repo);
     console.log("pulls: " + pulls);
     let claim = pulls.filter(p => filterLabel(p.labels, label));
     console.log("claim: " + claim);
+    await setOutput(claim);
+    await push();
     // await prom.then(async (pulls: any) => {
     //     console.log("data: " + pulls.data)
     //     let claim = pulls.data.filter(
