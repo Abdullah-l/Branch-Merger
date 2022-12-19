@@ -76,7 +76,8 @@ async function setOutput(pull) {
         try {
             console.log("merging " + branchName);
             try {
-                const merge = await git.mergeFromTo("origin/" + branchName, "origin/stag", ["--squash"]);
+                //   const merge = await git.mergeFromTo("origin/" + branchName, "origin/stag", ["--squash"]);
+                const merge = await git.raw(["merge", "origin/" + branchName, "--squash"]);
                 console.log(merge);
             }
             catch (error) {
