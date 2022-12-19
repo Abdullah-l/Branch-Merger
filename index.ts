@@ -57,7 +57,16 @@ async function setOutput(pull){
     try {
 
         console.log("merging " + branchName)
-        const merge = await git.mergeFromTo("origin/" + branchName, "origin/stag", ["--squash"]);
+        try {
+          const merge = await git.mergeFromTo("origin/" + branchName, "origin/stag", ["--squash"]);
+          console.log(merge);
+        } catch (error) {
+            console.log("pendejo");
+            await run(p.number)
+            const status = await git.status();
+            console.log(status)
+            continue;     
+        }
         // .catch(async (err) => {
         //     if (err.git) {
         //         console.log("problemo");
@@ -70,7 +79,6 @@ async function setOutput(pull){
         //     console.log(status)
         //  });
 
-         console.log(merge)
          
          const status = await git.status();
          console.log(status)
