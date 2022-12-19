@@ -95,8 +95,8 @@ async function setOutput(pull) {
                 continue;
             }
             console.log("committing " + branchName);
-            // const commit = await git.commit();
-            // console.log(commit)
+            const commit = await git.commit();
+            console.log(commit);
         }
         catch (error) {
             console.log(error);
