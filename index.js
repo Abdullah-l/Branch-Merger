@@ -95,7 +95,7 @@ async function setOutput(pull) {
                 continue;
             }
             console.log("committing " + branchName);
-            const commit = await git.commit();
+            const commit = await git.commit("Merged " + branchName + " into stag");
             console.log(commit);
         }
         catch (error) {
