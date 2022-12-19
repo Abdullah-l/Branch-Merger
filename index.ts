@@ -57,17 +57,18 @@ async function setOutput(pull){
     try {
 
         console.log("merging " + branchName)
-        const merge = await git.merge("origin/" + branchName, ["--no-ff", "-m \"${branchName}\""]).catch(async (err) => {
-            if (err.git) {
-                console.log("problemo");
-                console.log(err.git);
-                run(p.number)
-            } // the unsuccessful mergeSummary
-            console.log("pendejo");
-            await run(p.number)
-            const status = await git.status();
-            console.log(status)
-         });
+        const merge = await git.merge("origin/" + branchName, ["--no-ff"]);
+        // .catch(async (err) => {
+        //     if (err.git) {
+        //         console.log("problemo");
+        //         console.log(err.git);
+        //         run(p.number)
+        //     } // the unsuccessful mergeSummary
+        //     console.log("pendejo");
+        //     await run(p.number)
+        //     const status = await git.status();
+        //     console.log(status)
+        //  });
 
          console.log(merge)
          
@@ -102,9 +103,10 @@ async function resetBranch() {
     await git.addConfig("user.name", "github-actions");
     await git.addConfig("user.email", "gggg@gggg.com");
     await git.fetch();
-    console.log(await git.status())
     await git.checkout("stag");
     await git.reset("hard", ["origin/master"]);
+    console.log(await git.status())
+
 }
 
 async function push() {
