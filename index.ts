@@ -17,18 +17,18 @@ const client = github.getOctokit(token)
 
 
 async function pullRequests(repoOwner:string, repo:string ) {
-    let resp = client.rest.pulls.list({
+    let resp = await client.rest.pulls.list({
         owner: repoOwner,
         repo: repo,
-    }).catch(
-        e => {
-            core.setFailed(e.message)
-        }
-    )
-    console.dir(resp, { depth: null })
-    core.info(`pullRequests: ${resp}`)
-    console.log(`pullRequests: ${resp}`)
-    return resp
+    })
+    // .catch(
+    //     e => {
+    //         core.setFailed(e.message)
+    //     }
+    // )
+    console.log(`pullRequests len: ${resp.data.length}`)
+    console.log(`pullRequests data: ${resp.data}`)
+    return resp.data
 }
 
 function filterLabel(labels ,target: string):boolean{
@@ -112,16 +112,23 @@ async function push() {
     await git.push("origin", "stag", ["--force"]);
 }
 
-(async () => {
-    await resetBranch();
-    const prom = pullRequests(repoOwner,repo)
+async function main() {
+    // await resetBranch();
+    const pulls = await pullRequests(repoOwner,repo)
+    console.log("pulls: " + pulls)
+    let claim = pulls.filter(
+        p => filterLabel(p.labels, label)
+    )
+    console.log("claim: " + claim)
 
-    await prom.then(async (pulls: any) => {
-        console.log("data: " + pulls.data)
-        let claim = pulls.data.filter(
-            p => filterLabel(p.labels, label)
-        )
-        await setOutput(claim)
-    })
-    await push();
-})();
+    // await prom.then(async (pulls: any) => {
+    //     console.log("data: " + pulls.data)
+    //     let claim = pulls.data.filter(
+    //         p => filterLabel(p.labels, label)
+    //     )
+    //     await setOutput(claim)
+    // })
+    // await push();
+}
+
+main();
