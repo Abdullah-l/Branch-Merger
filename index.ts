@@ -68,6 +68,8 @@ async function setOutput(pull){
             const status = await git.status();
             console.log(status)
          });
+
+         console.log(merge)
          
          const status = await git.status();
          console.log(status)
