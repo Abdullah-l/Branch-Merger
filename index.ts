@@ -112,7 +112,8 @@ async function resetBranch() {
     await git.addConfig("user.email", "gggg@gggg.com");
     await git.fetch();
     await git.checkout("stag");
-    await git.reset("hard", ["origin/master"]);
+    await git.raw(["reset", "--hard", "origin/master"]);
+    // await git.reset("hard", ["origin/master"]);
     console.log(await git.status())
 
 }
