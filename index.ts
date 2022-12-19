@@ -20,6 +20,7 @@ async function pullRequests(repoOwner:string, repo:string ) {
     let resp = await client.rest.pulls.list({
         owner: repoOwner,
         repo: repo,
+        direction: "asc",
     })
     // .catch(
     //     e => {
@@ -63,7 +64,7 @@ async function setOutput(pull){
           console.log(merge);
         } catch (error) {
             console.log("pendejo");
-            await run(p.number)
+            await update_pr(p.number)
             const status = await git.status();
             console.log(status)
             continue;     
@@ -72,10 +73,10 @@ async function setOutput(pull){
         //     if (err.git) {
         //         console.log("problemo");
         //         console.log(err.git);
-        //         run(p.number)
+        //         update_pr(p.number)
         //     } // the unsuccessful mergeSummary
         //     console.log("pendejo");
-        //     await run(p.number)
+        //     await update_pr(p.number)
         //     const status = await git.status();
         //     console.log(status)
         //  });
@@ -85,7 +86,7 @@ async function setOutput(pull){
          console.log(status)
 
          if (status.conflicted.length > 0) {
-            run(p.number)
+            update_pr(p.number)
             continue;
           }
          console.log("committing " + branchName)
@@ -98,12 +99,19 @@ async function setOutput(pull){
 }
 }
 
-async function run(pr_number) {
+async function update_pr(pr_number) {
     await client.rest.issues.createComment({
       owner: repoOwner,
       repo: repo,
       issue_number: pr_number,
       body: 'you got problems man'
+    });
+
+    await client.rest.issues.removeLabel({
+        owner: repoOwner,
+        repo: repo,
+        issue_number: pr_number,
+        name: label
     });
   }
 
