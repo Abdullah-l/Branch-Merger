@@ -17,9 +17,6 @@ inputs:
   label:
     description: 'Label to filter pull requests'
     required: true
-  prComment:
-    description: 'Comment to add in PR which couldn't be merged'
-    required: true
 outputs:
   result:
     description: 'pull request string'

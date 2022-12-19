@@ -12,7 +12,6 @@ const token: string = core.getInput('token')
 const label: string = core.getInput('label')
 const originBranch: string = core.getInput('originBranch')
 const targetBranch: string = core.getInput('targetBranch')
-const prComment: string = core.getInput('prComment')
 console.log("beginning label: " + label)
 const repoOwner: string = github.context.repo.owner
 const repo: string = github.context.repo.repo
@@ -66,7 +65,7 @@ async function setOutput(pull){
         } catch (error) {
             console.log("merge failed, aborting");
             await git.raw(["merge", "--abort"]);
-            await update_pr(p.number)
+            await update_pr(p.number, branchName)
             const status = await git.status();
             console.log(status)
             continue;     
@@ -75,10 +74,6 @@ async function setOutput(pull){
          const status = await git.status();
          console.log(status)
 
-         if (status.conflicted.length > 0) {
-            update_pr(p.number)
-            continue;
-          }
          console.log("committing " + branchName)
         const commit = await git.commit("Merged " + branchName + " into " + targetBranch);
         console.log(commit)
@@ -89,12 +84,13 @@ async function setOutput(pull){
 }
 }
 
-async function update_pr(pr_number) {
+async function update_pr(pr_number, branchName) {
     await client.rest.issues.createComment({
       owner: repoOwner,
       repo: repo,
       issue_number: pr_number,
-      body: prComment
+      body: `The branch \`${branchName}\` has conflicts with \`${targetBranch}\` and couldn't be merged.
+       Please create a new branch based on \`${targetBranch}\`, resolve the conflicts, then open a PR and add the label \`${label}\.`
     });
 
     await client.rest.issues.removeLabel({
