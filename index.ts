@@ -64,7 +64,7 @@ async function setOutput(pull){
           console.log(merge);
         } catch (error) {
             console.log("merge failed, aborting");
-            await git.raw(["merge", "--abort"]);
+            await git.raw(["reset", "--merge"]);
             await update_pr(p.number, branchName)
             const status = await git.status();
             console.log(status)
