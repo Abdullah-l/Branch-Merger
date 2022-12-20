@@ -61,7 +61,7 @@ async function setOutput(pull){
         console.log("merging " + branchName)
         try {
           const merge = await git.raw(["merge", "origin/" + branchName, "--squash"])
-          console.log(merge);
+          console.log("merge status: \n" + merge);
         } catch (error) {
           console.log("caught merge error: " + error)
           undoMerge(p, branchName);
@@ -89,7 +89,8 @@ async function setOutput(pull){
 
 async function undoMerge(p, branchName) {
     await git.raw(["reset", "--merge"]);
-    await update_pr(p.number, branchName)
+    await update_pr(p.number, branchName);
+    console.log("printing status")
     const status = await git.status();
     console.log(status)
 }
