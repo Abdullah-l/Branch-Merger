@@ -73,7 +73,7 @@ async function setOutput(pull){
 
         if (status.conflicted.length > 0) {
             console.log("conflicts detected")
-            undoMerge(p, branchName)
+            undoMerge(p, branchName, status.conflicted)
             continue;
         }
 
@@ -87,21 +87,22 @@ async function setOutput(pull){
 }
 }
 
-async function undoMerge(p, branchName) {
+async function undoMerge(p, branchName, conflictFiles = []) {
     await git.raw(["reset", "--merge"]);
-    await update_pr(p.number, branchName);
+    await update_pr(p.number, branchName, conflictFiles);
     console.log("printing status")
     const status = await git.status();
     console.log(status)
 }
 
-async function update_pr(pr_number, branchName) {
+async function update_pr(pr_number, branchName, conflictFiles = []) {
     await client.rest.issues.createComment({
       owner: repoOwner,
       repo: repo,
       issue_number: pr_number,
-      body: `The branch \`${branchName}\` has conflicts with \`${targetBranch}\` and couldn't be merged.
-       Please create a new branch based on \`${targetBranch}\`, resolve the conflicts, then open a PR and add the label \`${label}\.`
+      body: `The branch \`${branchName}\` could not be merged with \`${targetBranch}\` due to conflicts in:
+        ${conflictFiles.map(f => `\`${f}\``).join("\n")}
+       Please resolve the conflicts in a PR based on \`${targetBranch}\` and add the label \`${label}\`.`
     });
 
     await client.rest.issues.removeLabel({
