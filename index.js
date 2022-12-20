@@ -84,14 +84,22 @@ async function setOutput(pull) {
             }
             catch (error) {
                 console.log("caught merge error: " + error);
-                undoMerge(p, branchName);
+                await git.raw(["reset", "--merge"]);
+                const comment = `An error occurred while merging \`${branchName}\` into \`${targetBranch}\`. Error:
+           ${error}`;
+                await update_pr(p.number, branchName, comment);
                 continue;
             }
             const status = await git.status();
             console.log(status);
-            if (status.conflicted.length > 0) {
+            const conflictFiles = status.conflicted;
+            if (conflictFiles.length > 0) {
                 console.log("conflicts detected");
-                undoMerge(p, branchName, status.conflicted);
+                await git.raw(["reset", "--merge"]);
+                const comment = `The branch \`${branchName}\` could not be merged into \`${targetBranch}\` due to conflicts in the following files:
+            ${conflictFiles.map(f => `- ${f}`).join("\n")}
+            Please resolve the conflicts in a PR based on \`${targetBranch}\` and add the label \`${label}\`.`;
+                await update_pr(p.number, branchName, comment, conflictFiles);
                 continue;
             }
             console.log("committing " + branchName);
@@ -103,21 +111,12 @@ async function setOutput(pull) {
         }
     }
 }
-async function undoMerge(p, branchName, conflictFiles = []) {
-    await git.raw(["reset", "--merge"]);
-    await update_pr(p.number, branchName, conflictFiles);
-    console.log("printing status");
-    const status = await git.status();
-    console.log(status);
-}
-async function update_pr(pr_number, branchName, conflictFiles = []) {
+async function update_pr(pr_number, branchName, comment, conflictFiles = []) {
     await client.rest.issues.createComment({
         owner: repoOwner,
         repo: repo,
         issue_number: pr_number,
-        body: `The branch \`${branchName}\` could not be merged with \`${targetBranch}\` due to conflicts in:
-        ${conflictFiles.map(f => `\`${f}\``).join("\n")}
-       Please resolve the conflicts in a PR based on \`${targetBranch}\` and add the label \`${label}\`.`
+        body: comment
     });
     await client.rest.issues.removeLabel({
         owner: repoOwner,
