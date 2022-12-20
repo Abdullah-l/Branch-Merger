@@ -83,15 +83,17 @@ async function setOutput(pull) {
                 console.log(merge);
             }
             catch (error) {
-                console.log("merge failed, aborting");
-                await git.raw(["reset", "--merge"]);
-                await update_pr(p.number, branchName);
-                const status = await git.status();
-                console.log(status);
+                console.log("caught merge error: " + error);
+                undoMerge(p, branchName);
                 continue;
             }
             const status = await git.status();
             console.log(status);
+            if (status.conflicted.length > 0) {
+                console.log("conflicts detected");
+                undoMerge(p, branchName);
+                continue;
+            }
             console.log("committing " + branchName);
             const commit = await git.commit("Merged " + branchName + " into " + targetBranch);
             console.log(commit);
@@ -100,6 +102,12 @@ async function setOutput(pull) {
             console.log(error);
         }
     }
+}
+async function undoMerge(p, branchName) {
+    await git.raw(["reset", "--merge"]);
+    await update_pr(p.number, branchName);
+    const status = await git.status();
+    console.log(status);
 }
 async function update_pr(pr_number, branchName) {
     await client.rest.issues.createComment({
